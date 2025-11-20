@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  db:
+    build:
+      context: .
+      dockerfile: db/Dockerfile
+    container_name: coffeequeue-db
+    environment:
+      POSTGRES_DB: coffeequeue
+      POSTGRES_USER: coffee_user
+      POSTGRES_PASSWORD: coffee_password
+    ports:
+      - "15432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: coffeequeue-app
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/coffeequeue
+      SPRING_DATASOURCE_USERNAME: coffee_user
+      SPRING_DATASOURCE_PASSWORD: coffee_password
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db-data:

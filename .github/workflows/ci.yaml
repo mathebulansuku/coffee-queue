@@ -41,4 +41,4 @@ jobs:
 
       - name: Build and run tests
         run: mvn -B -ntp clean verify
-        working-directory: ./coffeequeue
+        working-directory: coffeequeue

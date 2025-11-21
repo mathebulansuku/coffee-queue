@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coffeequeue-db
+  labels:
+    app: coffeequeue-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coffeequeue-db
+  template:
+    metadata:
+      labels:
+        app: coffeequeue-db
+    spec:
+      containers:
+        - name: postgres
+          image: coffeequeue-db:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: coffeequeue
+            - name: POSTGRES_USER
+              value: coffee_user
+            - name: POSTGRES_PASSWORD
+              value: coffee_password
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          volumeMounts:
+            - name: db-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: db-data
+          emptyDir: {}
+

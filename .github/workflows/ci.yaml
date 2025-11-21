@@ -97,3 +97,41 @@ jobs:
           tags: |
             ${{ steps.image-tags.outputs.db_image }}
             ${{ env.REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DB_IMAGE_NAME }}:latest
+
+  deploy-kind:
+    name: Deploy to local kind cluster
+    needs: docker-build-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up kind cluster
+        uses: helm/kind-action@v1.9.0
+        with:
+          wait: 120s
+
+      - name: Deploy PostgreSQL
+        run: |
+          kubectl apply -f kubernetes/postgres-deployment.yaml
+          kubectl apply -f kubernetes/postgres-service.yaml
+
+      - name: Deploy application
+        run: |
+          kubectl apply -f kubernetes/app-deployment.yaml
+          kubectl apply -f kubernetes/app-service.yaml
+          kubectl apply -f kubernetes/hpa.yaml
+
+      - name: Update images to pushed tags
+        run: |
+          kubectl set image deployment/coffeequeue-db postgres=${{ needs.docker-build-push.outputs.db_image }}
+          kubectl set image deployment/coffeequeue-app coffeequeue-app=${{ needs.docker-build-push.outputs.app_image }}
+
+      - name: Wait for rollouts
+        run: |
+          kubectl rollout status deployment/coffeequeue-db --timeout=120s
+          kubectl rollout status deployment/coffeequeue-app --timeout=180s
+
+      - name: Show pods
+        run: kubectl get pods -o wide

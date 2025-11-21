@@ -13,8 +13,8 @@ on:
 
 env:
   REGISTRY: docker.io
-  APP_IMAGE_NAME: coffeequeue-app
-  DB_IMAGE_NAME: coffeequeue-db
+  APP_IMAGE_NAME: manny2024/coffeequeue-app
+  DB_IMAGE_NAME: manny2024/coffeequeue-db
 
 jobs:
   build-test:

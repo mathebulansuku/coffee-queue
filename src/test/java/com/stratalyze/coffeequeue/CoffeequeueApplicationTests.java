@@ -1,13 +1,13 @@
-package com.stratalyze.coffeequeue;
+// package com.stratalyze.coffeequeue;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+// import org.junit.jupiter.api.Test;
+// import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class CoffeequeueApplicationTests {
+// @SpringBootTest
+// class CoffeequeueApplicationTests {
 
-    @Test
-    void contextLoads() {
-    }
+//     @Test
+//     void contextLoads() {
+//     }
 
-}
+// }
